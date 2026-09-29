@@ -1,0 +1,36 @@
+resources:
+  jobs:
+    web_content_job:
+      name: web-content-kit
+      description: Step 1 collects web pages into the content volume; step 2 chunks them and refreshes the Vector Search index.
+      # Weekly refresh; paused until you are ready. Unpause in the Jobs UI.
+      schedule:
+        quartz_cron_expression: "0 0 6 ? * MON"
+        timezone_id: UTC
+        pause_status: PAUSED
+      max_concurrent_runs: 1
+      tasks:
+        - task_key: ingest
+          notebook_task:
+            notebook_path: ../notebooks/01_ingest_web_to_volume.ipynb
+            base_parameters:
+              seed_urls: ${var.seed_urls}
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              volume: ${var.volume}
+              staging_volume: ${var.staging_volume}
+              max_pages: ${var.max_pages}
+              max_depth: ${var.max_depth}
+              include_url_pattern: ${var.include_url_pattern}
+        - task_key: index
+          depends_on:
+            - task_key: ingest
+          notebook_task:
+            notebook_path: ../notebooks/02_index_volume_to_vector_search.ipynb
+            base_parameters:
+              catalog: ${var.catalog}
+              schema: ${var.schema}
+              volume: ${var.volume}
+              pipeline_name: ${var.pipeline_name}
+              vs_endpoint: ${var.vs_endpoint}
+              index_name: ${var.index_name}

@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/databricks/cli/main/bundle/schema/jsonschema.json
+# OPTIONAL: runs the two notebooks as a scheduled job. The notebooks work on their
+# own (open → Run all) — you do not need this bundle to use them.
+bundle:
+  name: web-content-kit
+
+include:
+  - resources/*.yml
+
+
+variables:
+  catalog:
+    description: Unity Catalog catalog for the schema and volumes.
+    default: main
+  schema:
+    description: Schema that holds the volumes, chunk tables and index.
+    default: web_content
+  volume:
+    description: Content volume (clean Markdown pages; attach to Genie).
+    default: web_content
+  staging_volume:
+    description: Staging volume (run logs, optional raw HTML).
+    default: web_content_staging
+  seed_urls:
+    description: Comma-separated start URLs or sitemap.xml URLs.
+    default: https://docs.databricks.com/aws/en/ai-search/ai-search
+  max_pages:
+    description: Maximum pages to collect per run.
+    default: "100"
+  max_depth:
+    description: How many links deep to follow from the seeds.
+    default: "1"
+  include_url_pattern:
+    description: Optional regex; only follow URLs matching it.
+    default: ""
+  pipeline_name:
+    description: Name of the chunking pipeline created by step 2.
+    default: web_content_indexing
+  vs_endpoint:
+    description: Vector Search endpoint name.
+    default: web_content_vs
+  index_name:
+    description: Vector Search index name (created in the schema).
+    default: web_content_chunks_index
+
+targets:
+  dev:
+    mode: development
+    default: true
+    # Uses your default Databricks CLI authentication; pass -p <profile> to choose another workspace.
